@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D43B642E1D8B1DA0003F51D2 /* PMActivityIndicator.m in Sources */ = {isa = PBXBuildFile; fileRef = D43B642D1D8B1DA0003F51D2 /* PMActivityIndicator.m */; };
 		D4E9F4ED1D7B1BEE00C71619 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D4E9F4EC1D7B1BEE00C71619 /* main.m */; };
 		D4E9F4F01D7B1BEE00C71619 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D4E9F4EF1D7B1BEE00C71619 /* AppDelegate.m */; };
 		D4E9F4F31D7B1BEE00C71619 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D4E9F4F21D7B1BEE00C71619 /* ViewController.m */; };
@@ -15,7 +16,6 @@
 		D4E9F4FB1D7B1BEE00C71619 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D4E9F4F91D7B1BEE00C71619 /* LaunchScreen.storyboard */; };
 		D4E9F5061D7B1BEE00C71619 /* ExampleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D4E9F5051D7B1BEE00C71619 /* ExampleTests.m */; };
 		D4E9F5111D7B1BEE00C71619 /* ExampleUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = D4E9F5101D7B1BEE00C71619 /* ExampleUITests.m */; };
-		D4E9F5211D7B1C3A00C71619 /* PMActivityIndicator.m in Sources */ = {isa = PBXBuildFile; fileRef = D4E9F5201D7B1C3A00C71619 /* PMActivityIndicator.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +36,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D43B642C1D8B1DA0003F51D2 /* PMActivityIndicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PMActivityIndicator.h; path = PMActivityIndicator/PMActivityIndicator.h; sourceTree = "<group>"; };
+		D43B642D1D8B1DA0003F51D2 /* PMActivityIndicator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PMActivityIndicator.m; path = PMActivityIndicator/PMActivityIndicator.m; sourceTree = "<group>"; };
 		D4E9F4E81D7B1BEE00C71619 /* Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D4E9F4EC1D7B1BEE00C71619 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		D4E9F4EE1D7B1BEE00C71619 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -52,8 +54,6 @@
 		D4E9F50C1D7B1BEE00C71619 /* ExampleUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ExampleUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D4E9F5101D7B1BEE00C71619 /* ExampleUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ExampleUITests.m; sourceTree = "<group>"; };
 		D4E9F5121D7B1BEE00C71619 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		D4E9F51F1D7B1C3A00C71619 /* PMActivityIndicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PMActivityIndicator.h; sourceTree = "<group>"; };
-		D4E9F5201D7B1C3A00C71619 /* PMActivityIndicator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PMActivityIndicator.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -147,8 +147,8 @@
 		D4E9F51E1D7B1C1300C71619 /* PMActivityIndicator */ = {
 			isa = PBXGroup;
 			children = (
-				D4E9F51F1D7B1C3A00C71619 /* PMActivityIndicator.h */,
-				D4E9F5201D7B1C3A00C71619 /* PMActivityIndicator.m */,
+				D43B642C1D8B1DA0003F51D2 /* PMActivityIndicator.h */,
+				D43B642D1D8B1DA0003F51D2 /* PMActivityIndicator.m */,
 			);
 			name = PMActivityIndicator;
 			sourceTree = "<group>";
@@ -286,7 +286,7 @@
 				D4E9F4F31D7B1BEE00C71619 /* ViewController.m in Sources */,
 				D4E9F4F01D7B1BEE00C71619 /* AppDelegate.m in Sources */,
 				D4E9F4ED1D7B1BEE00C71619 /* main.m in Sources */,
-				D4E9F5211D7B1C3A00C71619 /* PMActivityIndicator.m in Sources */,
+				D43B642E1D8B1DA0003F51D2 /* PMActivityIndicator.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -512,6 +512,7 @@
 				D4E9F5171D7B1BEE00C71619 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		D4E9F5181D7B1BEE00C71619 /* Build configuration list for PBXNativeTarget "ExampleTests" */ = {
 			isa = XCConfigurationList;
@@ -520,6 +521,7 @@
 				D4E9F51A1D7B1BEE00C71619 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		D4E9F51B1D7B1BEE00C71619 /* Build configuration list for PBXNativeTarget "ExampleUITests" */ = {
 			isa = XCConfigurationList;
@@ -528,6 +530,7 @@
 				D4E9F51D1D7B1BEE00C71619 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
