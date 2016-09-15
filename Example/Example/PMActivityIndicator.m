@@ -17,7 +17,6 @@
 @property (nonatomic, strong) CAShapeLayer *shapeLayer;
 @property (nonatomic, strong) CADisplayLink *displayLink;
 @property (nonatomic, strong) UILabel *label;
-@property (nonatomic) BOOL isCircleSpinner;
 
 @end
 
@@ -40,7 +39,7 @@
 - (CGFloat)lineWidth
 {
     if (!_lineWidth)
-        _lineWidth = 3.0;
+        _lineWidth = 5.0;
     return _lineWidth;
 }
 
@@ -58,15 +57,25 @@
     return _color;
 }
 
+- (UIFont *)font
+{
+    if (!_font)
+        _font = [UIFont fontWithName:@"AvenirNext-Medium" size:30];
+    return _font;
+}
+
 - (id)init
 {
     self = [super init];
+    
     if (self)
     {
         self.frame = UIScreen.mainScreen.bounds;
         self.backgroundColor = UIColor.clearColor;
-        self.bounceEnabled = self.blurEnabled = YES;
+        self.bounceEnabled = YES;
+        self.blurEnabled = YES;
     }
+    
     return self;
 }
 
@@ -74,14 +83,14 @@
 {
     if (![self.message isEqualToString:@""])
     {
-        CGFloat fontSize = [self fontSizeWithFont:[UIFont fontWithName:@"AvenirNext-Medium" size:30]
+        CGFloat fontSize = [self fontSizeWithFont:self.font
                                 constrainedToSize:CGSizeMake(self.radius / sqrt(2.0) * 2, self.radius / sqrt(2.0) * 2)
                                   minimumFontSize:11];
         self.label = [[UILabel alloc] initWithFrame:CGRectMake(self.center.x - self.radius / sqrt(2.0),
                                                                self.center.y - self.radius / sqrt(2.0),
                                                                self.radius / sqrt(2.0) * 2,
                                                                self.radius / sqrt(2.0) * 2)];
-        self.label.font = [UIFont fontWithName:@"AvenirNext-Medium" size:fontSize];
+        self.label.font = [UIFont fontWithName:self.font.fontName size:fontSize];
         self.label.textColor = self.color;
         self.label.textAlignment = NSTextAlignmentCenter;
         self.label.text = self.message;
@@ -106,7 +115,9 @@
     self.shapeLayer.strokeColor = [self.color CGColor];
     self.shapeLayer.strokeStart = 0;
     self.shapeLayer.strokeEnd = 0;
+    self.shapeLayer.lineCap = kCALineCapRound;
     self.shapeLayer.frame = CGRectMake(self.center.x - self.radius, self.center.y - self.radius, 2 * self.radius, 2 * self.radius);
+    
     [self.layer addSublayer:self.shapeLayer];
     
     [self startDisplayLink];
@@ -136,24 +147,21 @@
     {
         self.iteration = (int)floor((displayLink.timestamp - self.firstTimestamp) / self.duration);
         
-        if (self.isCircleSpinner)
-        {
-            if (self.iteration % 2 == 0)
-                [self setStrokeStartPoint:CGPointMake(0, 0) endPoint:CGPointMake(1, 1) duration:self.duration * 0.8];
-            else
-                [self setStrokeStartPoint:CGPointMake(0, 1) endPoint:CGPointMake(0, 1) duration:self.duration];
-        }
+        if (self.iteration % 2 == 0)
+            [self setStrokeStartPoint:CGPointMake(0, 0) endPoint:CGPointMake(1, 1) duration:self.duration * 1.5];
         else
-        {
-            if (self.iteration % 4 == 0)
-                [self setStrokeStartPoint:CGPointMake(0, 0) endPoint:CGPointMake(1, 0.5) duration:self.duration * 0.8];
-            else if (self.iteration % 4 == 1)
-                [self setStrokeStartPoint:CGPointMake(0, 0.5) endPoint:CGPointMake(0, 0.5) duration:self.duration];
-            else if (self.iteration % 4 == 2)
-                [self setStrokeStartPoint:CGPointMake(0.5, 0.5) endPoint:CGPointMake(1, 1.0) duration:self.duration * 0.8];
-            else if (self.iteration % 4 == 3)
-                [self setStrokeStartPoint:CGPointMake(0.5, 1.0) endPoint:CGPointMake(0, 1.0) duration:self.duration];
-        }
+            [self setStrokeStartPoint:CGPointMake(0, 1) endPoint:CGPointMake(0, 1) duration:self.duration * 1.1];
+        
+        /*
+         if (self.iteration % 4 == 0)
+            [self setStrokeStartPoint:CGPointMake(0, 0) endPoint:CGPointMake(1, 0.5) duration:self.duration * 0.8];
+         else if (self.iteration % 4 == 1)
+            [self setStrokeStartPoint:CGPointMake(0, 0.5) endPoint:CGPointMake(0, 0.5) duration:self.duration];
+         else if (self.iteration % 4 == 2)
+            [self setStrokeStartPoint:CGPointMake(0.5, 0.5) endPoint:CGPointMake(1, 1.0) duration:self.duration * 0.8];
+         else if (self.iteration % 4 == 3)
+            [self setStrokeStartPoint:CGPointMake(0.5, 1.0) endPoint:CGPointMake(0, 1.0) duration:self.duration];
+         */
         
         if (self.bounceEnabled && self.iteration % 2 == 0)
             [self bounceLabel];
@@ -182,8 +190,8 @@
 {
     CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
     animation.fromValue = @0;
-    animation.toValue = [NSNumber numberWithFloat:M_PI * 2];
-    animation.duration = self.duration * 1.5;
+    animation.toValue = [NSNumber numberWithFloat:2 * M_PI];
+    animation.duration = self.duration * 2;
     animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
     animation.repeatCount = INFINITY;
     [self.shapeLayer addAnimation:animation forKey:@"transform.rotation.z"];
@@ -232,16 +240,6 @@
     };
     
     return fontSize;
-}
-
-- (void)circleSpinner
-{
-    self.isCircleSpinner = YES;
-}
-
-- (void)halfCircleSpinner
-{
-    self.isCircleSpinner = NO;
 }
 
 - (void)show
