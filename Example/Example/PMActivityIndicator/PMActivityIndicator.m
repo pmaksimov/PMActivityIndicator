@@ -8,9 +8,12 @@
 
 #import "PMActivityIndicator.h"
 
-#define DEGREES_TO_RADIANS(degrees) ((3.14159265359 * degrees) / 180)
+#define DEGREES_TO_RADIANS(degrees) ((M_PI * degrees) / 180)
 
 @interface PMActivityIndicator ()
+{
+    BOOL flag;
+}
 
 @property (nonatomic) CFTimeInterval firstTimestamp;
 @property (nonatomic) NSInteger iteration;
@@ -22,6 +25,23 @@
 
 @implementation PMActivityIndicator
 
+- (CAShapeLayer *)shapeLayer
+{
+    if (!_shapeLayer)
+    {
+        _shapeLayer = [CAShapeLayer layer];
+        _shapeLayer.path = [[self getPath] CGPath];
+        _shapeLayer.lineWidth = self.lineWidth;
+        _shapeLayer.fillColor = [UIColor.clearColor CGColor];
+        _shapeLayer.strokeColor = [self.color CGColor];
+        _shapeLayer.strokeStart = 0;
+        _shapeLayer.strokeEnd = 0;
+        _shapeLayer.lineCap = kCALineCapRound;
+        _shapeLayer.frame = CGRectMake(self.center.x - self.radius, self.center.y - self.radius, 2 * self.radius, 2 * self.radius);
+    }
+    return _shapeLayer;
+}
+
 - (CGFloat)duration
 {
     if (!_duration)
@@ -32,7 +52,7 @@
 - (CGFloat)radius
 {
     if (!_radius)
-        _radius = MIN(UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.height) / 15;
+        _radius = 30;
     return _radius;
 }
 
@@ -53,14 +73,14 @@
 - (UIColor *)color
 {
     if (!_color)
-        _color = UIColor.blackColor;
+        _color = [UIColor blackColor];
     return _color;
 }
 
 - (UIFont *)font
 {
     if (!_font)
-        _font = [UIFont fontWithName:@"AvenirNext-Medium" size:30];
+        _font = [UIFont fontWithName:@"Avenir-Black" size:30];
     return _font;
 }
 
@@ -102,25 +122,33 @@
     
     if (self.blurEnabled)
     {
-        UIVisualEffectView *blurView = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleLight]];
-        blurView.frame = self.bounds;
-        blurView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        [self addSubview:blurView];
+        UIGraphicsBeginImageContext(self.bounds.size);
+        [self.superview.layer renderInContext:UIGraphicsGetCurrentContext()];
+        UIImage *viewImg = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+        
+        CIImage *blurImg = [CIImage imageWithCGImage:viewImg.CGImage];
+        
+        CGAffineTransform transform = CGAffineTransformIdentity;
+        CIFilter *clampFilter = [CIFilter filterWithName:@"CIAffineClamp"];
+        [clampFilter setValue:blurImg forKey:@"inputImage"];
+        [clampFilter setValue:[NSValue valueWithBytes:&transform objCType:@encode(CGAffineTransform)] forKey:@"inputTransform"];
+        
+        CIFilter *gaussianBlurFilter = [CIFilter filterWithName:@"CIGaussianBlur"];
+        [gaussianBlurFilter setValue:clampFilter.outputImage forKey:@"inputImage"];
+        [gaussianBlurFilter setValue:[NSNumber numberWithFloat:5.0f] forKey:@"inputRadius"];
+        
+        CIContext *context = [CIContext contextWithOptions:nil];
+        CGImageRef cgImg = [context createCGImage:gaussianBlurFilter.outputImage fromRect:[blurImg extent]];
+        UIImage *outputImg = [UIImage imageWithCGImage:cgImg];
+        
+        UIImageView *imgView = [[UIImageView alloc] initWithFrame:self.bounds];
+        imgView.image = outputImg;
+        [self addSubview:imgView];
     }
     
-    self.shapeLayer = [CAShapeLayer layer];
-    self.shapeLayer.path = [[self getPath] CGPath];
-    self.shapeLayer.lineWidth = self.lineWidth;
-    self.shapeLayer.fillColor = [UIColor.clearColor CGColor];
-    self.shapeLayer.strokeColor = [self.color CGColor];
-    self.shapeLayer.strokeStart = 0;
-    self.shapeLayer.strokeEnd = 0;
-    self.shapeLayer.lineCap = kCALineCapRound;
-    self.shapeLayer.frame = CGRectMake(self.center.x - self.radius, self.center.y - self.radius, 2 * self.radius, 2 * self.radius);
-    
-    [self.layer addSublayer:self.shapeLayer];
-    
-    [self startDisplayLink];
+    if (!self.shapeLayer.superlayer)
+        [self.layer addSublayer:self.shapeLayer];
 }
 
 - (UIBezierPath *)getPath
@@ -130,14 +158,16 @@
 
 - (void)startDisplayLink
 {
+    flag = YES;
     self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(handleDisplayLink:)];
-    [self.displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    [self.displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
 }
 
 - (void)handleDisplayLink:(CADisplayLink *)displayLink
 {
-    if (!self.firstTimestamp)
+    if (flag)
     {
+        flag = NO;
         self.firstTimestamp = displayLink.timestamp;
         self.iteration = -1;
         [self rotateSpinner];
@@ -148,19 +178,23 @@
         self.iteration = (int)floor((displayLink.timestamp - self.firstTimestamp) / self.duration);
         
         if (self.iteration % 2 == 0)
-            [self setStrokeStartPoint:CGPointMake(0, 0) endPoint:CGPointMake(1, 1) duration:self.duration * 1.5];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self setStrokeStartPoint:CGPointMake(0, 0) endPoint:CGPointMake(1, 1) duration:self.duration * 1.5];
+            });
         else
-            [self setStrokeStartPoint:CGPointMake(0, 1) endPoint:CGPointMake(0, 1) duration:self.duration * 1.1];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self setStrokeStartPoint:CGPointMake(0, 1) endPoint:CGPointMake(0, 1) duration:self.duration * 1.1];
+            });
         
         /*
          if (self.iteration % 4 == 0)
-            [self setStrokeStartPoint:CGPointMake(0, 0) endPoint:CGPointMake(1, 0.5) duration:self.duration * 0.8];
+         [self setStrokeStartPoint:CGPointMake(0, 0) endPoint:CGPointMake(1, 0.5) duration:self.duration * 0.8];
          else if (self.iteration % 4 == 1)
-            [self setStrokeStartPoint:CGPointMake(0, 0.5) endPoint:CGPointMake(0, 0.5) duration:self.duration];
+         [self setStrokeStartPoint:CGPointMake(0, 0.5) endPoint:CGPointMake(0, 0.5) duration:self.duration];
          else if (self.iteration % 4 == 2)
-            [self setStrokeStartPoint:CGPointMake(0.5, 0.5) endPoint:CGPointMake(1, 1.0) duration:self.duration * 0.8];
+         [self setStrokeStartPoint:CGPointMake(0.5, 0.5) endPoint:CGPointMake(1, 1.0) duration:self.duration * 0.8];
          else if (self.iteration % 4 == 3)
-            [self setStrokeStartPoint:CGPointMake(0.5, 1.0) endPoint:CGPointMake(0, 1.0) duration:self.duration];
+         [self setStrokeStartPoint:CGPointMake(0.5, 1.0) endPoint:CGPointMake(0, 1.0) duration:self.duration];
          */
         
         if (self.bounceEnabled && self.iteration % 2 == 0)
@@ -244,7 +278,11 @@
 
 - (void)show
 {
-    [UIApplication.sharedApplication.delegate.window.rootViewController.view addSubview:self];
+    if (!self.superview)
+    {
+        [self startDisplayLink];
+        [UIApplication.sharedApplication.delegate.window.rootViewController.view addSubview:self];
+    }
 }
 
 - (void)hide
@@ -252,7 +290,8 @@
     if (self.superview)
     {
         [self removeFromSuperview];
-        [self.displayLink removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+        [self.displayLink removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+        [self.shapeLayer removeAllAnimations];
     }
 }
 
